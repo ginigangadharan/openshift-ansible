@@ -1,0 +1,51 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+
+[OSEv3:vars]
+ansible_ssh_user=ansible
+ansible_become=true
+debug_level=2
+deployment_type=origin
+openshift_deployment_type=origin
+openshift_release=v3.6
+openshift_pkg_version=-3.6.0
+openshift_image_tag=v3.6.0
+openshift_service_catalog_image_version=v3.6.0
+template_service_broker_image_version=v3.6.0
+ansible_service_broker_install=False
+
+#htpasswd auth
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+#openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_default_subdomain=cloudapps.techbeatly.local
+
+##containerized
+containerized=true
+openshift_disable_check=docker_image_availability,disk_availability,docker_storage,memory_availability
+openshift_node_kubelet_args={'pods-per-core': ['10']}
+
+# allow unencrypted connection within cluster
+openshift_docker_insecure_registries=172.30.0.0/16
+osm_use_cockpit=true
+osm_etcd_image=registry.fedoraproject.org/f26/etcd
+openshift_router_selector='region=primary'
+openshift_registry_selector='region=primary'
+
+# to fix the No package matching 'origin-docker-excluder-3.7.0 error
+# Ref: https://github.com/openshift/origin/issues/17199#issuecomment-342494842
+openshift_repos_enable_testing=true
+
+openshift_ip=10.142.0.4
+
+[masters]
+ocp-master02 openshift_public_hostname=35.227.22.165 openshift_hostname="{{ inventory_hostname }}" openshift_ip=10.142.0.4 openshift_public_ip=35.227.22.165 #openshift_node_group_name=ocpgce
+
+[etcd]
+ocp-master02 #openshift_node_group_name=ocpgce
+
+[nodes]
+ocp-master02 openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_ip=10.142.0.4 openshift_public_ip=35.227.22.165 #openshift_node_group_name=ocpgce #openshift_schedulable=false
+ocp-node03 openshift_node_labels="{'region': 'primary', 'zone': 'east'}" openshift_ip=10.142.0.5 openshift_public_ip=35.237.132.132 #openshift_node_group_name=ocpgce #openshift_schedulable=true
+ocp-node04 openshift_node_labels="{'region': 'primary', 'zone': 'west'}" openshift_ip=10.142.0.8 openshift_public_ip=104.196.132.75 #openshift_node_group_name=ocpgce  #openshift_schedulable=true
